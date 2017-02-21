@@ -1,0 +1,38 @@
+<template>
+    <div id="wrapper">
+        <nav class="navbar navbar-default">
+            <div class="container">
+                <a class="navbar-brand" href="#">
+                    <i class="glyphicon glyphicon-pencil"></i>
+                    Testimonials
+                </a>
+                <ul class="pull-right">
+                    <button class="btn btn-info navbar-btn" @click="showLoginModal">Login</button>
+                    <LoginModal></LoginModal>
+                    <button class="btn btn-success navbar-btn" >Sign Up</button>
+                </ul>
+            </div>
+        </nav>
+        <div class="container">
+            <router-view></router-view>
+        </div>
+    </div>
+</template>
+
+<script>
+    import LoginModal from './components/Parts/Login.vue'
+    export default {
+        name: 'master',
+        methods: {
+            showLoginModal: function () {
+                this.$store.state.ShowloginModal = !this.$store.state.ShowloginModal
+            },
+            showSignUpModal: function () {
+                this.signupmodal = true
+            }
+        },
+        components: {
+            'LoginModal': LoginModal
+        }
+    }
+</script>
