@@ -26,11 +26,25 @@ window.Vue = require('vue');
  */
 
 window.axios = require('axios');
+if (typeof localStorage !== 'undefined') {
+    if(localStorage.getItem('authtoken')){
+        var authtoken = JSON.parse(localStorage.getItem('authtoken'));
+        window.axios.defaults.headers.common = {
+            'X-CSRF-TOKEN': window.Laravel.csrfToken,
+            'Authorization': 'Bearer ' + authtoken.token,
+            'X-Requested-With': 'XMLHttpRequest'
+        };
+    }
+    else {
+        window.axios.defaults.headers.common = {
+            'X-CSRF-TOKEN': window.Laravel.csrfToken,
+            'X-Requested-With': 'XMLHttpRequest'
 
-window.axios.defaults.headers.common = {
-    'X-CSRF-TOKEN': window.Laravel.csrfToken,
-    'X-Requested-With': 'XMLHttpRequest'
-};
+        };
+    }
+
+}
+
 
 /**
  * Echo exposes an expressive API for subscribing to channels and listening

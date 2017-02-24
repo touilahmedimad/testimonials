@@ -7,9 +7,9 @@
                     Testimonials
                 </a>
                 <ul class="pull-right">
-                    <button class="btn btn-info navbar-btn" @click="showLoginModal">Login</button>
+                    <button v-show="!this.$store.state.Authenticated" class="btn btn-info navbar-btn" @click="showLoginModal">Login</button>
                     <LoginModal></LoginModal>
-                    <button class="btn btn-success navbar-btn" >Sign Up</button>
+                    <button  v-show="!this.$store.state.Authenticated" class="btn btn-success navbar-btn" >Sign Up</button>
                 </ul>
             </div>
         </nav>

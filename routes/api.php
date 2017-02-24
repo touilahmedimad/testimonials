@@ -16,9 +16,9 @@ Route::get('test', function (){
     return response(['1,2,3'],200);
 });
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
+Route::middleware('auth.jwt')->get('/user', function (Request $request) {
     return $request->user();
 });
-Route::post('/user/signin', [
+Route::post('/signin', [
     'uses' => 'UserController@SignIn'
 ]);

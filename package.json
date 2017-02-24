@@ -13,9 +13,10 @@
     "laravel-mix": "^0.7.2",
     "lodash": "^4.17.4",
     "vue": "^2.1.10",
-    "vee-validate": "^2.0.0-beta.22",
-    "vue-resource": "^1.2.0",
     "vue-router": "^2.2.0",
     "vuex": "^2.1.2"
+  },
+  "dependencies": {
+    "vee-validate": "^2.0.0-beta.22"
   }
 }
