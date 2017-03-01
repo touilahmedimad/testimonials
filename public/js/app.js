@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "./";
 
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 51);
+/******/ 	return __webpack_require__(__webpack_require__.s = 55);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -73,7 +73,7 @@
 "use strict";
 
 
-var bind = __webpack_require__(9);
+var bind = __webpack_require__(10);
 
 /*global toString:true*/
 
@@ -376,6 +376,59 @@ module.exports = {
 /* 1 */
 /***/ (function(module, exports) {
 
+module.exports = function normalizeComponent (
+  rawScriptExports,
+  compiledTemplate,
+  scopeId,
+  cssModules
+) {
+  var esModule
+  var scriptExports = rawScriptExports = rawScriptExports || {}
+
+  // ES6 modules interop
+  var type = typeof rawScriptExports.default
+  if (type === 'object' || type === 'function') {
+    esModule = rawScriptExports
+    scriptExports = rawScriptExports.default
+  }
+
+  // Vue.extend constructor export interop
+  var options = typeof scriptExports === 'function'
+    ? scriptExports.options
+    : scriptExports
+
+  // render functions
+  if (compiledTemplate) {
+    options.render = compiledTemplate.render
+    options.staticRenderFns = compiledTemplate.staticRenderFns
+  }
+
+  // scopedId
+  if (scopeId) {
+    options._scopeId = scopeId
+  }
+
+  // inject cssModules
+  if (cssModules) {
+    var computed = options.computed || (options.computed = {})
+    Object.keys(cssModules).forEach(function (key) {
+      var module = cssModules[key]
+      computed[key] = function () { return module }
+    })
+  }
+
+  return {
+    esModule: esModule,
+    exports: scriptExports,
+    options: options
+  }
+}
+
+
+/***/ }),
+/* 2 */
+/***/ (function(module, exports) {
+
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -559,7 +612,7 @@ process.umask = function() { return 0; };
 
 
 /***/ }),
-/* 2 */
+/* 3 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -583,10 +636,10 @@ function getDefaultAdapter() {
   var adapter;
   if (typeof XMLHttpRequest !== 'undefined') {
     // For browsers use XHR adapter
-    adapter = __webpack_require__(5);
+    adapter = __webpack_require__(6);
   } else if (typeof process !== 'undefined') {
     // For node use HTTP adapter
-    adapter = __webpack_require__(5);
+    adapter = __webpack_require__(6);
   }
   return adapter;
 }
@@ -657,10 +710,10 @@ utils.forEach(['post', 'put', 'patch'], function forEachMethodWithData(method) {
 
 module.exports = defaults;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 3 */
+/* 4 */
 /***/ (function(module, exports, __webpack_require__) {
 
 var __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/*!
@@ -10887,325 +10940,7 @@ return jQuery;
 
 
 /***/ }),
-/* 4 */
-/***/ (function(module, exports) {
-
-module.exports = function normalizeComponent (
-  rawScriptExports,
-  compiledTemplate,
-  scopeId,
-  cssModules
-) {
-  var esModule
-  var scriptExports = rawScriptExports = rawScriptExports || {}
-
-  // ES6 modules interop
-  var type = typeof rawScriptExports.default
-  if (type === 'object' || type === 'function') {
-    esModule = rawScriptExports
-    scriptExports = rawScriptExports.default
-  }
-
-  // Vue.extend constructor export interop
-  var options = typeof scriptExports === 'function'
-    ? scriptExports.options
-    : scriptExports
-
-  // render functions
-  if (compiledTemplate) {
-    options.render = compiledTemplate.render
-    options.staticRenderFns = compiledTemplate.staticRenderFns
-  }
-
-  // scopedId
-  if (scopeId) {
-    options._scopeId = scopeId
-  }
-
-  // inject cssModules
-  if (cssModules) {
-    var computed = options.computed || (options.computed = {})
-    Object.keys(cssModules).forEach(function (key) {
-      var module = cssModules[key]
-      computed[key] = function () { return module }
-    })
-  }
-
-  return {
-    esModule: esModule,
-    exports: scriptExports,
-    options: options
-  }
-}
-
-
-/***/ }),
 /* 5 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(process) {
-
-var utils = __webpack_require__(0);
-var settle = __webpack_require__(21);
-var buildURL = __webpack_require__(24);
-var parseHeaders = __webpack_require__(30);
-var isURLSameOrigin = __webpack_require__(28);
-var createError = __webpack_require__(8);
-var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(23);
-
-module.exports = function xhrAdapter(config) {
-  return new Promise(function dispatchXhrRequest(resolve, reject) {
-    var requestData = config.data;
-    var requestHeaders = config.headers;
-
-    if (utils.isFormData(requestData)) {
-      delete requestHeaders['Content-Type']; // Let the browser set it
-    }
-
-    var request = new XMLHttpRequest();
-    var loadEvent = 'onreadystatechange';
-    var xDomain = false;
-
-    // For IE 8/9 CORS support
-    // Only supports POST and GET calls and doesn't returns the response headers.
-    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
-    if (process.env.NODE_ENV !== 'test' &&
-        typeof window !== 'undefined' &&
-        window.XDomainRequest && !('withCredentials' in request) &&
-        !isURLSameOrigin(config.url)) {
-      request = new window.XDomainRequest();
-      loadEvent = 'onload';
-      xDomain = true;
-      request.onprogress = function handleProgress() {};
-      request.ontimeout = function handleTimeout() {};
-    }
-
-    // HTTP basic authentication
-    if (config.auth) {
-      var username = config.auth.username || '';
-      var password = config.auth.password || '';
-      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
-    }
-
-    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
-
-    // Set the request timeout in MS
-    request.timeout = config.timeout;
-
-    // Listen for ready state
-    request[loadEvent] = function handleLoad() {
-      if (!request || (request.readyState !== 4 && !xDomain)) {
-        return;
-      }
-
-      // The request errored out and we didn't get a response, this will be
-      // handled by onerror instead
-      // With one exception: request that using file: protocol, most browsers
-      // will return status as 0 even though it's a successful request
-      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
-        return;
-      }
-
-      // Prepare the response
-      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
-      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
-      var response = {
-        data: responseData,
-        // IE sends 1223 instead of 204 (https://github.com/mzabriskie/axios/issues/201)
-        status: request.status === 1223 ? 204 : request.status,
-        statusText: request.status === 1223 ? 'No Content' : request.statusText,
-        headers: responseHeaders,
-        config: config,
-        request: request
-      };
-
-      settle(resolve, reject, response);
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle low level network errors
-    request.onerror = function handleError() {
-      // Real errors are hidden from us by the browser
-      // onerror should only fire if it's a network error
-      reject(createError('Network Error', config));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Handle timeout
-    request.ontimeout = function handleTimeout() {
-      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED'));
-
-      // Clean up request
-      request = null;
-    };
-
-    // Add xsrf header
-    // This is only done if running in a standard browser environment.
-    // Specifically not if we're in a web worker, or react-native.
-    if (utils.isStandardBrowserEnv()) {
-      var cookies = __webpack_require__(26);
-
-      // Add xsrf header
-      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
-          cookies.read(config.xsrfCookieName) :
-          undefined;
-
-      if (xsrfValue) {
-        requestHeaders[config.xsrfHeaderName] = xsrfValue;
-      }
-    }
-
-    // Add headers to the request
-    if ('setRequestHeader' in request) {
-      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
-        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
-          // Remove Content-Type if data is undefined
-          delete requestHeaders[key];
-        } else {
-          // Otherwise add header to the request
-          request.setRequestHeader(key, val);
-        }
-      });
-    }
-
-    // Add withCredentials to request if needed
-    if (config.withCredentials) {
-      request.withCredentials = true;
-    }
-
-    // Add responseType to request if needed
-    if (config.responseType) {
-      try {
-        request.responseType = config.responseType;
-      } catch (e) {
-        if (request.responseType !== 'json') {
-          throw e;
-        }
-      }
-    }
-
-    // Handle progress if needed
-    if (typeof config.onDownloadProgress === 'function') {
-      request.addEventListener('progress', config.onDownloadProgress);
-    }
-
-    // Not all browsers support upload events
-    if (typeof config.onUploadProgress === 'function' && request.upload) {
-      request.upload.addEventListener('progress', config.onUploadProgress);
-    }
-
-    if (config.cancelToken) {
-      // Handle cancellation
-      config.cancelToken.promise.then(function onCanceled(cancel) {
-        if (!request) {
-          return;
-        }
-
-        request.abort();
-        reject(cancel);
-        // Clean up request
-        request = null;
-      });
-    }
-
-    if (requestData === undefined) {
-      requestData = null;
-    }
-
-    // Send the request
-    request.send(requestData);
-  });
-};
-
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
-
-/***/ }),
-/* 6 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-/**
- * A `Cancel` is an object that is thrown when an operation is canceled.
- *
- * @class
- * @param {string=} message The message.
- */
-function Cancel(message) {
-  this.message = message;
-}
-
-Cancel.prototype.toString = function toString() {
-  return 'Cancel' + (this.message ? ': ' + this.message : '');
-};
-
-Cancel.prototype.__CANCEL__ = true;
-
-module.exports = Cancel;
-
-
-/***/ }),
-/* 7 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function isCancel(value) {
-  return !!(value && value.__CANCEL__);
-};
-
-
-/***/ }),
-/* 8 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-var enhanceError = __webpack_require__(20);
-
-/**
- * Create an Error with the specified message, config, error code, and response.
- *
- * @param {string} message The error message.
- * @param {Object} config The config.
- * @param {string} [code] The error code (for example, 'ECONNABORTED').
- @ @param {Object} [response] The response.
- * @returns {Error} The created error.
- */
-module.exports = function createError(message, config, code, response) {
-  var error = new Error(message);
-  return enhanceError(error, config, code, response);
-};
-
-
-/***/ }),
-/* 9 */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-module.exports = function bind(fn, thisArg) {
-  return function wrap() {
-    var args = new Array(arguments.length);
-    for (var i = 0; i < args.length; i++) {
-      args[i] = arguments[i];
-    }
-    return fn.apply(thisArg, args);
-  };
-};
-
-
-/***/ }),
-/* 10 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -19778,7 +19513,272 @@ Vue$3.compile = compileToFunctions;
 
 module.exports = Vue$3;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1), __webpack_require__(11)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2), __webpack_require__(11)))
+
+/***/ }),
+/* 6 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(process) {
+
+var utils = __webpack_require__(0);
+var settle = __webpack_require__(21);
+var buildURL = __webpack_require__(24);
+var parseHeaders = __webpack_require__(30);
+var isURLSameOrigin = __webpack_require__(28);
+var createError = __webpack_require__(9);
+var btoa = (typeof window !== 'undefined' && window.btoa && window.btoa.bind(window)) || __webpack_require__(23);
+
+module.exports = function xhrAdapter(config) {
+  return new Promise(function dispatchXhrRequest(resolve, reject) {
+    var requestData = config.data;
+    var requestHeaders = config.headers;
+
+    if (utils.isFormData(requestData)) {
+      delete requestHeaders['Content-Type']; // Let the browser set it
+    }
+
+    var request = new XMLHttpRequest();
+    var loadEvent = 'onreadystatechange';
+    var xDomain = false;
+
+    // For IE 8/9 CORS support
+    // Only supports POST and GET calls and doesn't returns the response headers.
+    // DON'T do this for testing b/c XMLHttpRequest is mocked, not XDomainRequest.
+    if (process.env.NODE_ENV !== 'test' &&
+        typeof window !== 'undefined' &&
+        window.XDomainRequest && !('withCredentials' in request) &&
+        !isURLSameOrigin(config.url)) {
+      request = new window.XDomainRequest();
+      loadEvent = 'onload';
+      xDomain = true;
+      request.onprogress = function handleProgress() {};
+      request.ontimeout = function handleTimeout() {};
+    }
+
+    // HTTP basic authentication
+    if (config.auth) {
+      var username = config.auth.username || '';
+      var password = config.auth.password || '';
+      requestHeaders.Authorization = 'Basic ' + btoa(username + ':' + password);
+    }
+
+    request.open(config.method.toUpperCase(), buildURL(config.url, config.params, config.paramsSerializer), true);
+
+    // Set the request timeout in MS
+    request.timeout = config.timeout;
+
+    // Listen for ready state
+    request[loadEvent] = function handleLoad() {
+      if (!request || (request.readyState !== 4 && !xDomain)) {
+        return;
+      }
+
+      // The request errored out and we didn't get a response, this will be
+      // handled by onerror instead
+      // With one exception: request that using file: protocol, most browsers
+      // will return status as 0 even though it's a successful request
+      if (request.status === 0 && !(request.responseURL && request.responseURL.indexOf('file:') === 0)) {
+        return;
+      }
+
+      // Prepare the response
+      var responseHeaders = 'getAllResponseHeaders' in request ? parseHeaders(request.getAllResponseHeaders()) : null;
+      var responseData = !config.responseType || config.responseType === 'text' ? request.responseText : request.response;
+      var response = {
+        data: responseData,
+        // IE sends 1223 instead of 204 (https://github.com/mzabriskie/axios/issues/201)
+        status: request.status === 1223 ? 204 : request.status,
+        statusText: request.status === 1223 ? 'No Content' : request.statusText,
+        headers: responseHeaders,
+        config: config,
+        request: request
+      };
+
+      settle(resolve, reject, response);
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle low level network errors
+    request.onerror = function handleError() {
+      // Real errors are hidden from us by the browser
+      // onerror should only fire if it's a network error
+      reject(createError('Network Error', config));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Handle timeout
+    request.ontimeout = function handleTimeout() {
+      reject(createError('timeout of ' + config.timeout + 'ms exceeded', config, 'ECONNABORTED'));
+
+      // Clean up request
+      request = null;
+    };
+
+    // Add xsrf header
+    // This is only done if running in a standard browser environment.
+    // Specifically not if we're in a web worker, or react-native.
+    if (utils.isStandardBrowserEnv()) {
+      var cookies = __webpack_require__(26);
+
+      // Add xsrf header
+      var xsrfValue = (config.withCredentials || isURLSameOrigin(config.url)) && config.xsrfCookieName ?
+          cookies.read(config.xsrfCookieName) :
+          undefined;
+
+      if (xsrfValue) {
+        requestHeaders[config.xsrfHeaderName] = xsrfValue;
+      }
+    }
+
+    // Add headers to the request
+    if ('setRequestHeader' in request) {
+      utils.forEach(requestHeaders, function setRequestHeader(val, key) {
+        if (typeof requestData === 'undefined' && key.toLowerCase() === 'content-type') {
+          // Remove Content-Type if data is undefined
+          delete requestHeaders[key];
+        } else {
+          // Otherwise add header to the request
+          request.setRequestHeader(key, val);
+        }
+      });
+    }
+
+    // Add withCredentials to request if needed
+    if (config.withCredentials) {
+      request.withCredentials = true;
+    }
+
+    // Add responseType to request if needed
+    if (config.responseType) {
+      try {
+        request.responseType = config.responseType;
+      } catch (e) {
+        if (request.responseType !== 'json') {
+          throw e;
+        }
+      }
+    }
+
+    // Handle progress if needed
+    if (typeof config.onDownloadProgress === 'function') {
+      request.addEventListener('progress', config.onDownloadProgress);
+    }
+
+    // Not all browsers support upload events
+    if (typeof config.onUploadProgress === 'function' && request.upload) {
+      request.upload.addEventListener('progress', config.onUploadProgress);
+    }
+
+    if (config.cancelToken) {
+      // Handle cancellation
+      config.cancelToken.promise.then(function onCanceled(cancel) {
+        if (!request) {
+          return;
+        }
+
+        request.abort();
+        reject(cancel);
+        // Clean up request
+        request = null;
+      });
+    }
+
+    if (requestData === undefined) {
+      requestData = null;
+    }
+
+    // Send the request
+    request.send(requestData);
+  });
+};
+
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
+
+/***/ }),
+/* 7 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+/**
+ * A `Cancel` is an object that is thrown when an operation is canceled.
+ *
+ * @class
+ * @param {string=} message The message.
+ */
+function Cancel(message) {
+  this.message = message;
+}
+
+Cancel.prototype.toString = function toString() {
+  return 'Cancel' + (this.message ? ': ' + this.message : '');
+};
+
+Cancel.prototype.__CANCEL__ = true;
+
+module.exports = Cancel;
+
+
+/***/ }),
+/* 8 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function isCancel(value) {
+  return !!(value && value.__CANCEL__);
+};
+
+
+/***/ }),
+/* 9 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var enhanceError = __webpack_require__(20);
+
+/**
+ * Create an Error with the specified message, config, error code, and response.
+ *
+ * @param {string} message The error message.
+ * @param {Object} config The config.
+ * @param {string} [code] The error code (for example, 'ECONNABORTED').
+ @ @param {Object} [response] The response.
+ * @returns {Error} The created error.
+ */
+module.exports = function createError(message, config, code, response) {
+  var error = new Error(message);
+  return enhanceError(error, config, code, response);
+};
+
+
+/***/ }),
+/* 10 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+module.exports = function bind(fn, thisArg) {
+  return function wrap() {
+    var args = new Array(arguments.length);
+    for (var i = 0; i < args.length; i++) {
+      args[i] = arguments[i];
+    }
+    return fn.apply(thisArg, args);
+  };
+};
+
 
 /***/ }),
 /* 11 */
@@ -19813,19 +19813,21 @@ module.exports = g;
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__master__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__master__ = __webpack_require__(46);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__master___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__master__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__store_store_js__ = __webpack_require__(36);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_router__ = __webpack_require__(47);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__store_store_js__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_router__ = __webpack_require__(52);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue_router___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_vue_router__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_Home__ = __webpack_require__(40);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_Home__ = __webpack_require__(44);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_Home___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3__components_Home__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_Dashboard__ = __webpack_require__(61);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_Dashboard__ = __webpack_require__(42);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__components_Dashboard___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4__components_Dashboard__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_vee_validate__ = __webpack_require__(39);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_vee_validate__ = __webpack_require__(41);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_vee_validate___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_5_vee_validate__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_vue__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_vue__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_Example__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_Example___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7__components_Example__);
 
 /**
  * First we will load all of this project's JavaScript dependencies which
@@ -19833,7 +19835,8 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
  * building robust, powerful web applications using Vue and Laravel.
  */
 
-__webpack_require__(35);
+__webpack_require__(37);
+
 
 
 
@@ -19851,17 +19854,33 @@ __WEBPACK_IMPORTED_MODULE_6_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_5_vee_
 var routes = [{
     path: '/',
     component: __WEBPACK_IMPORTED_MODULE_3__components_Home___default.a,
-    name: 'Home'
+    name: 'Home',
+    meta: { requiresAuth: false }
 }, {
     path: '/dashboard',
     component: __WEBPACK_IMPORTED_MODULE_4__components_Dashboard___default.a,
-    name: 'Dashboard'
+    name: 'Dashboard',
+    meta: { requiresAuth: true }
+}, {
+    path: '/test',
+    component: __WEBPACK_IMPORTED_MODULE_7__components_Example___default.a,
+    name: 'test',
+    meta: { requiresAuth: true }
 }];
 window.router = new __WEBPACK_IMPORTED_MODULE_2_vue_router___default.a({
     routes: routes
 });
+var vm = this;
 router.beforeEach(function (to, from, next) {
-    next();
+    if (to.meta.requiresAuth) {
+        if (localStorage.getItem('authtoken')) {
+            next();
+        } else {
+            next('/');
+        }
+    } else {
+        next();
+    }
 });
 __WEBPACK_IMPORTED_MODULE_6_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_2_vue_router___default.a);
 var app = new __WEBPACK_IMPORTED_MODULE_6_vue___default.a({
@@ -19892,9 +19911,9 @@ module.exports = __webpack_require__(15);
 
 
 var utils = __webpack_require__(0);
-var bind = __webpack_require__(9);
+var bind = __webpack_require__(10);
 var Axios = __webpack_require__(17);
-var defaults = __webpack_require__(2);
+var defaults = __webpack_require__(3);
 
 /**
  * Create an instance of Axios
@@ -19927,9 +19946,9 @@ axios.create = function create(instanceConfig) {
 };
 
 // Expose Cancel & CancelToken
-axios.Cancel = __webpack_require__(6);
+axios.Cancel = __webpack_require__(7);
 axios.CancelToken = __webpack_require__(16);
-axios.isCancel = __webpack_require__(7);
+axios.isCancel = __webpack_require__(8);
 
 // Expose all/spread
 axios.all = function all(promises) {
@@ -19950,7 +19969,7 @@ module.exports.default = axios;
 "use strict";
 
 
-var Cancel = __webpack_require__(6);
+var Cancel = __webpack_require__(7);
 
 /**
  * A `CancelToken` is an object that can be used to request cancellation of an operation.
@@ -20014,7 +20033,7 @@ module.exports = CancelToken;
 "use strict";
 
 
-var defaults = __webpack_require__(2);
+var defaults = __webpack_require__(3);
 var utils = __webpack_require__(0);
 var InterceptorManager = __webpack_require__(18);
 var dispatchRequest = __webpack_require__(19);
@@ -20167,8 +20186,8 @@ module.exports = InterceptorManager;
 
 var utils = __webpack_require__(0);
 var transformData = __webpack_require__(22);
-var isCancel = __webpack_require__(7);
-var defaults = __webpack_require__(2);
+var isCancel = __webpack_require__(8);
+var defaults = __webpack_require__(3);
 
 /**
  * Throws a `Cancel` if cancellation has been requested.
@@ -20277,7 +20296,7 @@ module.exports = function enhanceError(error, config, code, response) {
 "use strict";
 
 
-var createError = __webpack_require__(8);
+var createError = __webpack_require__(9);
 
 /**
  * Resolve or reject a Promise based on response status.
@@ -20739,6 +20758,67 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 
 /* harmony default export */ __webpack_exports__["default"] = {
+    name: 'Dashboard',
+    data: function data() {
+        return {
+            msg: 'Dashboard'
+        };
+    }
+};
+
+/***/ }),
+/* 33 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+/* harmony default export */ __webpack_exports__["default"] = {
+    mounted: function mounted() {
+        axios.get('/api/test').then(function (response) {
+            console.log(response);
+        }).catch(function (error) {
+            console.log(error);
+        });
+    }
+};
+
+/***/ }),
+/* 34 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
+
+/* harmony default export */ __webpack_exports__["default"] = {
     data: function data() {
         return {
             msg: 'Testemonial Script'
@@ -20747,7 +20827,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 };
 
 /***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -20819,9 +20899,9 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
                 }).then(function (response) {
                     authtoken.token = response.data.token;
                     window.localStorage.setItem('authtoken', JSON.stringify(authtoken));
-                    vm.$store.state.Authenticated = true;
                     vm.$store.state.ShowloginModal = false;
                     vm.$router.push({ name: 'Dashboard' });
+                    vm.$store.state.Authenticated = true;
                 }).catch(function (error) {
                     console.log(error);
                 });
@@ -20831,12 +20911,12 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 };
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_Parts_Login_vue__ = __webpack_require__(41);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_Parts_Login_vue__ = __webpack_require__(45);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__components_Parts_Login_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0__components_Parts_Login_vue__);
 //
 //
@@ -20863,6 +20943,21 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 
 /* harmony default export */ __webpack_exports__["default"] = {
     name: 'master',
+    created: function created() {
+        var vm = this;
+        if (localStorage.getItem('authtoken')) {
+            axios.get('/api/user').then(function (response) {
+                vm.$store.state.Authenticated = true;
+                console.log(response);
+            }).catch(function (error) {
+                vm.$store.state.Authenticated = false;
+                console.log(error);
+            });
+        } else {
+            this.$store.state.Authenticated = false;
+        }
+    },
+
     methods: {
         showLoginModal: function showLoginModal() {
             this.$store.state.ShowloginModal = !this.$store.state.ShowloginModal;
@@ -20870,6 +20965,7 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
         showSignUpModal: function showSignUpModal() {
             this.signupmodal = true;
         }
+
     },
     components: {
         'LoginModal': __WEBPACK_IMPORTED_MODULE_0__components_Parts_Login_vue___default.a
@@ -20877,11 +20973,11 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 };
 
 /***/ }),
-/* 35 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(__webpack_provided_window_dot_jQuery) {
-window._ = __webpack_require__(38);
+window._ = __webpack_require__(40);
 
 /**
  * We'll load jQuery and the Bootstrap jQuery plugin which provides support
@@ -20889,9 +20985,9 @@ window._ = __webpack_require__(38);
  * code may be modified to fit the specific needs of your application.
  */
 
-window.$ = __webpack_provided_window_dot_jQuery = __webpack_require__(3);
+window.$ = __webpack_provided_window_dot_jQuery = __webpack_require__(4);
 
-__webpack_require__(37);
+__webpack_require__(39);
 
 /**
  * Vue is a modern JavaScript library for building interactive web interfaces
@@ -20899,7 +20995,7 @@ __webpack_require__(37);
  * and simple, leaving you to focus on building your next great project.
  */
 
-window.Vue = __webpack_require__(10);
+window.Vue = __webpack_require__(5);
 
 /**
  * We'll load the axios HTTP library which allows us to easily issue requests
@@ -20937,16 +21033,16 @@ if (typeof localStorage !== 'undefined') {
 //     broadcaster: 'pusher',
 //     key: 'your-pusher-key'
 // });
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 36 */
+/* 38 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(10);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue__ = __webpack_require__(5);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_0_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuex__ = __webpack_require__(48);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuex__ = __webpack_require__(53);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuex___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vuex__);
 /* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "a", function() { return store; });
 
@@ -20960,7 +21056,7 @@ var store = new __WEBPACK_IMPORTED_MODULE_1_vuex___default.a.Store({
 });
 
 /***/ }),
-/* 37 */
+/* 39 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(jQuery) {/*!
@@ -23341,10 +23437,10 @@ if (typeof jQuery === 'undefined') {
 
 }(jQuery);
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(3)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(4)))
 
 /***/ }),
-/* 38 */
+/* 40 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /* WEBPACK VAR INJECTION */(function(global, module) {var __WEBPACK_AMD_DEFINE_RESULT__;/**
@@ -40433,10 +40529,10 @@ if (typeof jQuery === 'undefined') {
   }
 }.call(this));
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(49)(module)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(11), __webpack_require__(54)(module)))
 
 /***/ }),
-/* 39 */
+/* 41 */
 /***/ (function(module, exports, __webpack_require__) {
 
 (function (global, factory) {
@@ -41249,7 +41345,7 @@ ErrorBag.prototype.add = function add (field, msg, rule, scope) {
    */
 ErrorBag.prototype.all = function all (scope) {
   if (! scope) {
-    scope = '__global__';
+    return this.errors.map(function (e) { return e.msg; });
   }
 
   return this.errors.filter(function (e) { return e.scope === scope; }).map(function (e) { return e.msg; });
@@ -41262,7 +41358,7 @@ ErrorBag.prototype.all = function all (scope) {
    */
 ErrorBag.prototype.any = function any (scope) {
   if (! scope) {
-    scope = '__global__';
+    return !! this.errors.length;
   }
 
   return !! this.errors.filter(function (e) { return e.scope === scope; }).length;
@@ -41336,7 +41432,12 @@ ErrorBag.prototype.first = function first (field, scope) {
   var scoped = this._scope(field);
 
   if (scoped) {
-    return this.first(scoped.name, scoped.scope);
+    var result = this.first(scoped.name, scoped.scope);
+    // if such result exist, return it. otherwise it could be a field.
+    // with dot in its name.
+    if (result) {
+      return result;
+    }
   }
 
   if (selector) {
@@ -41593,6 +41694,42 @@ var assign = function (target) {
   });
 
   return to;
+};
+
+/**
+ * polyfills array.find
+ * @param {Array} array
+ * @param {Function} predicate
+ */
+var find = function (array, predicate) {
+  if (array.find) {
+    return array.find(predicate);
+  }
+
+  var result;
+  array.some(function (item) {
+    if (predicate(item)) {
+      result = item;
+      return true;
+    }
+
+    return false;
+  });
+
+  return result;
+};
+
+var getRules = function (expression, value, el) {
+  // TODO: Deprecate this.
+  if (! expression) {
+    return getDataAttribute(el, 'rules');
+  }
+
+  if (typeof value === 'string') {
+    return value;
+  }
+
+  return isObject(value.rules) ? value.rules : value;
 };
 
 /* eslint-disable prefer-rest-params */
@@ -41875,6 +42012,17 @@ FieldBag.prototype._add = function _add (name) {
   this._setFlags(name, { dirty: false, valid: false, }, true);
 };
 
+/**
+ * Adds a field if it does not exist.
+ */
+FieldBag.prototype._addIfNotExists = function _addIfNotExists (name) {
+  if (this.fields[name]) {
+    return;
+  }
+
+  this._add(name);
+};
+
   /**
    * Remooves a field from the bag.
    */
@@ -42016,7 +42164,7 @@ var dictionary = new Dictionary({
   }
 });
 
-var Validator = function Validator(validations, $vm, options) {
+var Validator = function Validator(validations, options) {
   if ( options === void 0 ) options = { init: true };
 
   this.strictMode = STRICT_MODE;
@@ -42024,16 +42172,15 @@ var Validator = function Validator(validations, $vm, options) {
   this.fieldBag = new FieldBag();
   this._createFields(validations);
   this.errorBag = new ErrorBag();
-  this.$vm = $vm;
-      // Some fields will be later evaluated, because the vm isn't mounted yet
-      // so it may register it under an inaccurate scope.
+  // Some fields will be later evaluated, because the vm isn't mounted yet
+  // so it may register it under an inaccurate scope.
   this.$deferred = [];
   this.$ready = false;
 
-      // if momentjs is present, install the validators.
+  // if momentjs is present, install the validators.
   if (typeof moment === 'function') {
-          // eslint-disable-next-line
-          this.installDateTimeValidators(moment);
+    // eslint-disable-next-line
+    this.installDateTimeValidators(moment);
   }
 
   if (options.init) {
@@ -42285,7 +42432,7 @@ Validator.prototype._createField = function _createField (name, checks, scope) {
   }
 
   var field = this.$scopes[scope][name];
-  this.fieldBag._add(name);
+  this.fieldBag._addIfNotExists(name);
   field.validations = this._normalizeRules(name, checks, scope);
   field.required = this._isRequired(field);
 };
@@ -42426,7 +42573,7 @@ Validator.prototype._formatErrorMessage = function _formatErrorMessage (field, r
     if ( scope === void 0 ) scope = '__global__';
 
   var name = this._getFieldDisplayName(field, scope);
-  var params = this._getLocalizedParams(rule);
+  var params = this._getLocalizedParams(rule, scope);
 
   if (! dictionary.hasLocale(LOCALE) ||
        typeof dictionary.getMessage(LOCALE, rule.name) !== 'function') {
@@ -42440,9 +42587,12 @@ Validator.prototype._formatErrorMessage = function _formatErrorMessage (field, r
   /**
    * Translates the parameters passed to the rule (mainly for target fields).
    */
-Validator.prototype._getLocalizedParams = function _getLocalizedParams (rule) {
+Validator.prototype._getLocalizedParams = function _getLocalizedParams (rule, scope) {
+    if ( scope === void 0 ) scope = '__global__';
+
   if (~ ['after', 'before', 'confirmed'].indexOf(rule.name) &&
       rule.params && rule.params[0]) {
+    if (this.$scopes[scope][rule.params[0]]) { return [this.$scopes[scope][rule.params[0]].name]; }
     return [dictionary.getAttribute(LOCALE, rule.params[0], rule.params[0])];
   }
 
@@ -42617,11 +42767,10 @@ Validator.prototype.updateField = function updateField (name, checks, options) {
 Validator.prototype.detach = function detach (name, scope) {
     if ( scope === void 0 ) scope = '__global__';
 
-      // No such field.
+  // No such field.
   if (! this.$scopes[scope] || ! this.$scopes[scope][name]) {
     return;
   }
-
 
   this.$scopes[scope][name].listeners.detach();
   this.errorBag.remove(name, scope);
@@ -42731,8 +42880,11 @@ Validator.prototype.validate = function validate (name, value, scope) {
     if ( scope === void 0 ) scope = '__global__';
 
   if (name && name.indexOf('.') > -1) {
-    var assign$$1;
-      (assign$$1 = name.split('.'), scope = assign$$1[0], name = assign$$1[1]);
+    // no such field, try the scope form.
+    if (! this.$scopes.__global__[name]) {
+      var assign$$1;
+        (assign$$1 = name.split('.'), scope = assign$$1[0], name = assign$$1[1]);
+    }
   }
   if (! scope) { scope = '__global__'; }
   if (! this.$scopes[scope] || ! this.$scopes[scope][name]) {
@@ -42745,26 +42897,25 @@ Validator.prototype.validate = function validate (name, value, scope) {
 
   var field = this.$scopes[scope][name];
   this.errorBag.remove(name, scope);
-      // if its not required and is empty or null or undefined then it passes.
+  // if its not required and is empty or null or undefined then it passes.
   if (! field.required && ~[null, undefined, ''].indexOf(value)) {
     this.fieldBag._setFlags(name, { valid: true, dirty: true });
     return true;
   }
 
-  var test = true;
   var promises = [];
-  Object.keys(field.validations).forEach(function (rule) {
+  var test = Object.keys(field.validations).every(function (rule) {
     var result = this$1._test(
-              name,
-              value,
-              { name: rule, params: field.validations[rule] },
-              scope);
+      name,
+      value,
+      { name: rule, params: field.validations[rule] },
+      scope
+    );
     if (isCallable(result.then)) {
       promises.push(result);
-      return;
     }
 
-    test = test && result;
+    return result;
   });
 
   if (promises.length) {
@@ -42841,73 +42992,23 @@ Validator.prototype.validateScopes = function validateScopes () {
       );
 };
 
-/**
- * Keeps track of $vm, $validator instances.
- * @type {Array}
- */
-var instances = [];
-
-/**
- * Finds a validator instance from the instances array.
- * @param  {[type]} $vm The Vue instance.
- * @return {object} pair the $vm,$validator pair.
- */
-var find = function ($vm) {
-  for (var i = 0; i < instances.length; i++) {
-    if (instances[i].$vm === $vm) {
-      return instances[i].$validator;
-    }
-  }
-
-  return undefined;
-};
-
-/**
- * Registers a validator for a $vm instance.
- * @param  {*} $vm The Vue instance.
- * @return {Validator} $validator The validator instance.
- */
-var register = function ($vm) {
-  var instance = find($vm);
-  if (! instance) {
-    instance = Validator.create(undefined, $vm, { init: false });
-
-    instances.push({
-      $vm: $vm,
-      $validator: instance
-    });
-  }
-
-  return instance;
-};
-
-var unregister = function ($vm) {
-  for (var i = 0; i < instances.length; i++) {
-    if (instances[i].$vm === $vm) {
-      instances.splice(i, 1);
-
-      return true;
-    }
-  }
-
-  return false;
-};
-
-var mixin = function (options) { return ({
-  data: function data() {
-    return ( obj = {}, obj[options.errorBagName] = this.$validator.errorBag, obj );
-    var obj;
-  },
-  computed: ( obj = {}, obj[options.fieldsBagName] = {
+var makeMixin = function (Vue, options) { return ({
+  computed: ( obj = {}, obj[options.errorBagName] = {
+      get: function get() {
+        return this.$validator.errorBag;
+      }
+    }, obj[options.fieldsBagName] = {
       get: function get() {
         return this.$validator.fieldBag;
       }
     }, obj ),
+  beforeCreate: function beforeCreate() {
+    this.$validator = new Validator(null, { init: false });
+    Vue.util.defineReactive(this.$validator, 'errorBag', this.$validator.errorBag);
+    Vue.util.defineReactive(this.$validator, 'fieldBag', this.$validator.fieldBag);
+  },
   mounted: function mounted() {
     this.$validator.init();
-  },
-  destroyed: function destroyed() {
-    unregister(this);
   }
 })
   var obj; };
@@ -42922,27 +43023,33 @@ var ListenerGenerator = function ListenerGenerator(el, binding, vnode, options) 
   this.component = vnode.child;
   this.options = options;
   this.fieldName = this._resolveFieldName();
-  if (vnode.data && vnode.data.directives) {
-    this.model = this._resolveModel(vnode.data.directives);
-  }
+  this.model = this._resolveModel(vnode.data.directives);
 };
 
 /**
  * Checks if the node directives contains a v-model.
  */
 ListenerGenerator.prototype._resolveModel = function _resolveModel (directives) {
-  var boundTo = null;
-  directives.some(function (d) {
-    if (d.name === 'model') {
-      boundTo = d.expression;
+  var expRegex = /^[a-z_]+[0-9]*(\w*\.[a-z_]\w*)*$/i;
+  var model = find(directives, function (d) { return d.name === 'model' && expRegex.test(d.expression); });
 
-      return true;
+  return model && this._isExistingPath(model.expression) && model.expression;
+};
+
+/**
+ * Checks if the object path exists.
+ */
+ListenerGenerator.prototype._isExistingPath = function _isExistingPath (path) {
+  var obj = this.vm;
+  return path.split('.').every(function (prop) {
+    if (! Object.prototype.hasOwnProperty.call(obj, prop)) {
+      return false;
     }
 
-    return false;
-  });
+    obj = obj[prop];
 
-  return boundTo;
+    return true;
+  });
 };
 
   /**
@@ -42954,7 +43061,7 @@ ListenerGenerator.prototype._resolveFieldName = function _resolveFieldName () {
     return getDataAttribute(this.el, 'name') || this.component.name;
   }
 
-  return this.el.name || getDataAttribute(this.el, 'name');
+  return getDataAttribute(this.el, 'name') || this.el.name;
 };
 
   /**
@@ -42969,7 +43076,7 @@ ListenerGenerator.prototype._hasFieldDependency = function _hasFieldDependency (
   }
 
   if (isObject(rules)) {
-    Object.keys(rules).forEach(function (r) {
+    Object.keys(rules).forEach(function (r) { // eslint-disable-line
       if (/confirmed|after|before/.test(r)) {
         fieldName = rules[r];
 
@@ -43061,14 +43168,6 @@ ListenerGenerator.prototype._getScopedListener = function _getScopedListener (ca
   };
 };
 
-ListenerGenerator.prototype._getRules = function _getRules () {
-  if (! this.binding.expression) {
-    return getDataAttribute(this.el, 'rules');
-  }
-
-  return isObject(this.binding.value) ? this.binding.value.rules : this.binding.value;
-};
-
   /**
    * Attaches validator event-triggered validation.
    */
@@ -43076,7 +43175,9 @@ ListenerGenerator.prototype._attachValidatorEvent = function _attachValidatorEve
     var this$1 = this;
 
   var listener = this._getScopedListener(this._getSuitableListener().listener.bind(this));
-  var fieldName = this._hasFieldDependency(this._getRules());
+  var fieldName = this._hasFieldDependency(
+      getRules(this.binding.expression, this.binding.value, this.el)
+    );
   if (fieldName) {
           // Wait for the validator ready triggered when vm is mounted because maybe
           // the element isn't mounted yet.
@@ -43137,8 +43238,8 @@ ListenerGenerator.prototype._getSuitableListener = function _getSuitableListener
     break;
   }
 
-      // users are able to specify which events they want to validate on
-      // pipe separated list of handler names to use
+  // users are able to specify which events they want to validate on
+  // pipe separated list of handler names to use
   var events = getDataAttribute(this.el, 'validate-on');
   if (events) {
     listener.names = events.split('|');
@@ -43147,9 +43248,9 @@ ListenerGenerator.prototype._getSuitableListener = function _getSuitableListener
   return listener;
 };
 
-  /**
-   * Attaches neccessary validation events for the component.
-   */
+/**
+ * Attaches neccessary validation events for the component.
+ */
 ListenerGenerator.prototype._attachComponentListeners = function _attachComponentListeners () {
     var this$1 = this;
 
@@ -43160,13 +43261,13 @@ ListenerGenerator.prototype._attachComponentListeners = function _attachComponen
   this.component.$on('input', this.componentListener);
 };
 
-  /**
-   * Attachs a suitable listener for the input.
-   */
+/**
+ * Attachs a suitable listener for the input.
+ */
 ListenerGenerator.prototype._attachFieldListeners = function _attachFieldListeners () {
     var this$1 = this;
 
-      // If it is a component, use vue events instead.
+  // If it is a component, use vue events instead.
   if (this.component) {
     this._attachComponentListeners();
 
@@ -43199,9 +43300,9 @@ ListenerGenerator.prototype._attachFieldListeners = function _attachFieldListene
   });
 };
 
-  /**
-   * Returns a context, getter factory pairs for each input type.
-   */
+/**
+ * Returns a context, getter factory pairs for each input type.
+ */
 ListenerGenerator.prototype._resolveValueGetter = function _resolveValueGetter () {
     var this$1 = this;
 
@@ -43247,48 +43348,76 @@ ListenerGenerator.prototype._resolveValueGetter = function _resolveValueGetter (
   }
 };
 
-  /*
-  * Gets the arg string value, either from the directive or the expression value.
-  */
+/*
+* Gets the arg string value, either from the directive or the expression value.
+*/
 ListenerGenerator.prototype._getArg = function _getArg () {
-  if (this.model) {
-    return this.model;
-  }
-
+  // Get it from the directive arg.
   if (this.binding.arg) {
     return this.binding.arg;
+  }
+
+  // Get it from v-model.
+  if (this.model) {
+    return this.model;
   }
 
   return isObject(this.binding.value) ? this.binding.value.arg : null;
 };
 
-  /**
-   * Attaches the Event Listeners.
-   */
+/**
+ * Attaches model watchers and extra listeners.
+ */
+ListenerGenerator.prototype._attachModelWatcher = function _attachModelWatcher (arg) {
+    var this$1 = this;
+
+  var events = getDataAttribute(this.el, 'validate-on') || 'input|blur';
+  var listener = debounce(
+    this._getSuitableListener().listener.bind(this),
+    getDataAttribute(this.el, 'delay') || this.options.delay
+  );
+  events.split('|').forEach(function (name) {
+    if (~['input', 'change'].indexOf(name)) {
+      var debounced = debounce(function (value) {
+        this$1.vm.$validator.validate(this$1.fieldName, value, this$1.scope || getScope(this$1.el));
+      }, getDataAttribute(this$1.el, 'delay') || this$1.options.delay);
+      this$1.unwatch = this$1.vm.$watch(arg, debounced, { deep: true });
+      // No need to attach it on element as it will use the vue watcher.
+      return;
+    }
+
+    this$1.el.addEventListener(name, listener);
+    this$1.callbacks.push({ name: name, listener: listener, el: this$1.el });
+  });
+};
+
+/**
+ * Attaches the Event Listeners.
+ */
 ListenerGenerator.prototype.attach = function attach () {
     var this$1 = this;
 
   var ref = this._resolveValueGetter();
     var context = ref.context;
     var getter = ref.getter;
-  this.vm.$validator.attach(this.fieldName, this._getRules(), {
-    // eslint-disable-next-line
-    scope: function () {
-      return this$1.scope || getScope(this$1.el);
-    },
-    prettyName: getDataAttribute(this.el, 'as'),
-    context: context,
-    getter: getter,
-    listeners: this
-  });
+  this.vm.$validator.attach(
+    this.fieldName,
+    getRules(this.binding.expression, this.binding.value, this.el), {
+      // eslint-disable-next-line
+      scope: function () {
+        return this$1.scope || getScope(this$1.el);
+      },
+      prettyName: getDataAttribute(this.el, 'as'),
+      context: context,
+      getter: getter,
+      listeners: this
+    }
+  );
 
   this._attachValidatorEvent();
   var arg = this._getArg();
   if (arg) {
-    this.unwatch = this.vm.$watch(arg, function (value) {
-      this$1.vm.$validator.validate(this$1.fieldName, value, this$1.scope || getScope(this$1.el));
-    }, { deep: true });
-
+    this._attachModelWatcher(arg);
     return;
   }
 
@@ -43310,33 +43439,15 @@ ListenerGenerator.prototype.detach = function detach () {
   this.callbacks.forEach(function (h) {
     h.el.removeEventListener(h.name, h.listener);
   });
+  this.callbacks = [];
 };
 
 var listenersInstances = [];
 
-var defaultClassNames = {
-  touched: 'touched', // the control has been blurred
-  untouched: 'untouched', // the control hasn't been blurred
-  valid: 'valid', // model is valid
-  invalid: 'invalid', // model is invalid
-  pristine: 'pristine', // control has not been interacted with
-  dirty: 'dirty' // control has been interacted with
-};
+function addClasses(el, flags, classNames) {
+  if (! flags) { return; }
 
-function addClasses(el, fieldName, fields, classNames) {
-  if ( classNames === void 0 ) classNames = null;
-
-  if (!fieldName) {
-    return;
-  }
-
-  classNames = assign({}, defaultClassNames, classNames);
-
-  var isDirty = fields.dirty(fieldName);
-  var isValid = fields.valid(fieldName);
-  var failed = fields.failed(fieldName);
-
-  if (isDirty) {
+  if (flags.dirty) {
     addClass(el, classNames.touched);
     removeClass(el, classNames.untouched);
   } else {
@@ -43344,32 +43455,26 @@ function addClasses(el, fieldName, fields, classNames) {
     removeClass(el, classNames.touched);
   }
 
-  if (isValid) {
+  if (flags.valid || flags.passed) {
     addClass(el, classNames.valid);
     removeClass(el, classNames.invalid);
   } else {
-    if (failed) {
-      addClass(el, classNames.invalid);
-    }
+    addClass(el, classNames.invalid);
     removeClass(el, classNames.valid);
   }
 }
 
 function setDirty(el, classNames) {
-  classNames = assign({}, defaultClassNames, classNames);
-
   addClass(el, classNames.dirty);
   removeClass(el, classNames.pristine);
 }
 
 function setPristine(el, classNames) {
-  classNames = assign({}, defaultClassNames, classNames);
-
   addClass(el, classNames.pristine);
   removeClass(el, classNames.dirty);
 }
 
-var directive = function (options) { return ({
+var makeDirective = function (options) { return ({
   bind: function bind(el, binding, vnode) {
     var listener = new ListenerGenerator(el, binding, vnode, options);
 
@@ -43377,15 +43482,13 @@ var directive = function (options) { return ({
     listenersInstances.push({ vm: vnode.context, el: el, instance: listener });
 
     if (options.enableAutoClasses) {
-      var classNames = options.classNames;
-
-      setPristine(el, classNames);
-
-      el.onfocus = function () {
-        setDirty(el, classNames);
-      };
-
-      addClasses(el, listener.fieldName, vnode.context[options.fieldsBagName], classNames);
+      setPristine(el, options.classNames);
+      el.onfocus = function () { setDirty(el, options.classNames); };
+      addClasses(
+        el,
+        vnode.context.$validator.fieldBag.fields[listener.fieldName],
+        options.classNames
+      );
     }
   },
   update: function update(el, ref, ref$1) {
@@ -43394,9 +43497,10 @@ var directive = function (options) { return ({
     var oldValue = ref.oldValue;
     var context = ref$1.context;
 
-    var holder = listenersInstances.filter(function (l) { return l.vm === context && l.el === el; })[0];
+    var ref$2 = find(listenersInstances, function (l) { return l.vm === context && l.el === el; });
+    var instance = ref$2.instance;
     if (options.enableAutoClasses) {
-      addClasses(el, holder.instance.fieldName, context[options.fieldsBagName], options.classNames);
+      addClasses(el, context.$validator.fieldBag.fields[instance.fieldName], options.classNames);
     }
 
     // make sure we don't do uneccessary work if no expression was passed
@@ -43406,25 +43510,34 @@ var directive = function (options) { return ({
 
     var scope = isObject(value) ? (value.scope || getScope(el)) : getScope(el);
     context.$validator.updateField(
-            holder.instance.fieldName,
-            isObject(value) ? value.rules : value,
-            { scope: scope || '__global__' }
-        );
+      instance.fieldName,
+      getRules(expression, value, el),
+      { scope: scope || '__global__' }
+    );
   },
   unbind: function unbind(el, ref, ref$1) {
     var value = ref.value;
     var context = ref$1.context;
 
-    var holder = listenersInstances.filter(function (l) { return l.vm === context && l.el === el; })[0];
+    var holder = find(listenersInstances, function (l) { return l.vm === context && l.el === el; });
     if (typeof holder === 'undefined') {
       return;
     }
 
-    var scope = isObject(value) ? value.scope : getScope(el);
+    var scope = isObject(value) ? value.scope : (getScope(el) || '__global__');
     context.$validator.detach(holder.instance.fieldName, scope);
     listenersInstances.splice(listenersInstances.indexOf(holder), 1);
   }
 }); };
+
+var DEFAULT_CLASS_NAMES = {
+  touched: 'touched', // the control has been blurred
+  untouched: 'untouched', // the control hasn't been blurred
+  valid: 'valid', // model is valid
+  invalid: 'invalid', // model is invalid
+  pristine: 'pristine', // control has not been interacted with
+  dirty: 'dirty' // control has been interacted with
+};
 
 // eslint-disable-next-line
 var install = function (Vue, ref) {
@@ -43436,7 +43549,7 @@ var install = function (Vue, ref) {
   var strict = ref.strict; if ( strict === void 0 ) strict = true;
   var fieldsBagName = ref.fieldsBagName; if ( fieldsBagName === void 0 ) fieldsBagName = 'fields';
   var enableAutoClasses = ref.enableAutoClasses; if ( enableAutoClasses === void 0 ) enableAutoClasses = false;
-  var classNames = ref.classNames; if ( classNames === void 0 ) classNames = null;
+  var classNames = ref.classNames; if ( classNames === void 0 ) classNames = {};
 
   if (dictionary) {
     Validator.updateDictionary(dictionary);
@@ -43452,19 +43565,11 @@ var install = function (Vue, ref) {
     errorBagName: errorBagName,
     fieldsBagName: fieldsBagName,
     enableAutoClasses: enableAutoClasses,
-    classNames: classNames
+    classNames: assign({}, DEFAULT_CLASS_NAMES, classNames)
   };
 
-  Object.defineProperties(Vue.prototype, {
-    $validator: {
-      get: function get() {
-        return register(this);
-      }
-    }
-  });
-
-  Vue.mixin(mixin(options)); // Install Mixin.
-  Vue.directive('validate', directive(options));
+  Vue.mixin(makeMixin(Vue, options));
+  Vue.directive('validate', makeDirective(options));
 };
 
 var index = {
@@ -43480,20 +43585,88 @@ return index;
 
 
 /***/ }),
-/* 40 */
+/* 42 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Component = __webpack_require__(4)(
+var Component = __webpack_require__(1)(
   /* script */
   __webpack_require__(32),
   /* template */
-  __webpack_require__(43),
+  __webpack_require__(48),
   /* scopeId */
   null,
   /* cssModules */
   null
 )
-Component.options.__file = "C:\\wamp64\\www\\testimonials\\resources\\assets\\js\\components\\Home.vue"
+Component.options.__file = "/home/imad/Code/testimonials/resources/assets/js/components/Dashboard.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] Dashboard.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-217a94bc", Component.options)
+  } else {
+    hotAPI.reload("data-v-217a94bc", Component.options)
+  }
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 43 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(1)(
+  /* script */
+  __webpack_require__(33),
+  /* template */
+  __webpack_require__(50),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+Component.options.__file = "/home/imad/Code/testimonials/resources/assets/js/components/Example.vue"
+if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
+if (Component.options.functional) {console.error("[vue-loader] Example.vue: functional components are not supported with templates, they should use render functions.")}
+
+/* hot reload */
+if (false) {(function () {
+  var hotAPI = require("vue-hot-reload-api")
+  hotAPI.install(require("vue"), false)
+  if (!hotAPI.compatible) return
+  module.hot.accept()
+  if (!module.hot.data) {
+    hotAPI.createRecord("data-v-4a248492", Component.options)
+  } else {
+    hotAPI.reload("data-v-4a248492", Component.options)
+  }
+})()}
+
+module.exports = Component.exports
+
+
+/***/ }),
+/* 44 */
+/***/ (function(module, exports, __webpack_require__) {
+
+var Component = __webpack_require__(1)(
+  /* script */
+  __webpack_require__(34),
+  /* template */
+  __webpack_require__(47),
+  /* scopeId */
+  null,
+  /* cssModules */
+  null
+)
+Component.options.__file = "/home/imad/Code/testimonials/resources/assets/js/components/Home.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] Home.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -43514,20 +43687,20 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 41 */
+/* 45 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Component = __webpack_require__(4)(
+var Component = __webpack_require__(1)(
   /* script */
-  __webpack_require__(33),
+  __webpack_require__(35),
   /* template */
-  __webpack_require__(45),
+  __webpack_require__(51),
   /* scopeId */
   null,
   /* cssModules */
   null
 )
-Component.options.__file = "C:\\wamp64\\www\\testimonials\\resources\\assets\\js\\components\\Parts\\Login.vue"
+Component.options.__file = "/home/imad/Code/testimonials/resources/assets/js/components/Parts/Login.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] Login.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -43548,20 +43721,20 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 42 */
+/* 46 */
 /***/ (function(module, exports, __webpack_require__) {
 
-var Component = __webpack_require__(4)(
+var Component = __webpack_require__(1)(
   /* script */
-  __webpack_require__(34),
+  __webpack_require__(36),
   /* template */
-  __webpack_require__(44),
+  __webpack_require__(49),
   /* scopeId */
   null,
   /* cssModules */
   null
 )
-Component.options.__file = "C:\\wamp64\\www\\testimonials\\resources\\assets\\js\\master.vue"
+Component.options.__file = "/home/imad/Code/testimonials/resources/assets/js/master.vue"
 if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
 if (Component.options.functional) {console.error("[vue-loader] master.vue: functional components are not supported with templates, they should use render functions.")}
 
@@ -43582,7 +43755,7 @@ module.exports = Component.exports
 
 
 /***/ }),
-/* 43 */
+/* 47 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -43599,7 +43772,24 @@ if (false) {
 }
 
 /***/ }),
-/* 44 */
+/* 48 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "jumbotron"
+  }, [_c('h1', [_vm._v("Testemonial Script")]), _vm._v(" "), _c('p', [_c('strong', [_vm._v("\n            imad  to " + _vm._s(_vm.msg) + "\n        ")])])])
+},staticRenderFns: []}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-217a94bc", module.exports)
+  }
+}
+
+/***/ }),
+/* 49 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -43654,7 +43844,36 @@ if (false) {
 }
 
 /***/ }),
-/* 45 */
+/* 50 */
+/***/ (function(module, exports, __webpack_require__) {
+
+module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _vm._m(0)
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('div', {
+    staticClass: "container"
+  }, [_c('div', {
+    staticClass: "row"
+  }, [_c('div', {
+    staticClass: "col-md-8 col-md-offset-2"
+  }, [_c('div', {
+    staticClass: "panel panel-default"
+  }, [_c('div', {
+    staticClass: "panel-heading"
+  }, [_vm._v("Example")]), _vm._v(" "), _c('div', {
+    staticClass: "panel-body"
+  }, [_vm._v("\n                    Touil Ahmed Imad!\n                ")])])])])])
+}]}
+module.exports.render._withStripped = true
+if (false) {
+  module.hot.accept()
+  if (module.hot.data) {
+     require("vue-hot-reload-api").rerender("data-v-4a248492", module.exports)
+  }
+}
+
+/***/ }),
+/* 51 */
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -43798,8 +44017,7 @@ if (false) {
 }
 
 /***/ }),
-/* 46 */,
-/* 47 */
+/* 52 */
 /***/ (function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -46082,10 +46300,10 @@ if (inBrowser && window.Vue) {
 
 module.exports = VueRouter;
 
-/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(1)))
+/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(2)))
 
 /***/ }),
-/* 48 */
+/* 53 */
 /***/ (function(module, exports, __webpack_require__) {
 
 /**
@@ -46896,7 +47114,7 @@ return index;
 
 
 /***/ }),
-/* 49 */
+/* 54 */
 /***/ (function(module, exports) {
 
 module.exports = function(module) {
@@ -46924,99 +47142,12 @@ module.exports = function(module) {
 
 
 /***/ }),
-/* 50 */,
-/* 51 */
+/* 55 */
 /***/ (function(module, exports, __webpack_require__) {
 
 __webpack_require__(12);
 module.exports = __webpack_require__(13);
 
-
-/***/ }),
-/* 52 */,
-/* 53 */,
-/* 54 */,
-/* 55 */,
-/* 56 */,
-/* 57 */,
-/* 58 */,
-/* 59 */,
-/* 60 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-
-
-/* harmony default export */ __webpack_exports__["default"] = {
-    data: function data() {
-        return {
-            msg: 'Dashboard'
-        };
-    }
-};
-
-/***/ }),
-/* 61 */
-/***/ (function(module, exports, __webpack_require__) {
-
-var Component = __webpack_require__(4)(
-  /* script */
-  __webpack_require__(60),
-  /* template */
-  __webpack_require__(62),
-  /* scopeId */
-  null,
-  /* cssModules */
-  null
-)
-Component.options.__file = "C:\\wamp64\\www\\testimonials\\resources\\assets\\js\\components\\Dashboard.vue"
-if (Component.esModule && Object.keys(Component.esModule).some(function (key) {return key !== "default" && key !== "__esModule"})) {console.error("named exports are not supported in *.vue files.")}
-if (Component.options.functional) {console.error("[vue-loader] Dashboard.vue: functional components are not supported with templates, they should use render functions.")}
-
-/* hot reload */
-if (false) {(function () {
-  var hotAPI = require("vue-hot-reload-api")
-  hotAPI.install(require("vue"), false)
-  if (!hotAPI.compatible) return
-  module.hot.accept()
-  if (!module.hot.data) {
-    hotAPI.createRecord("data-v-217a94bc", Component.options)
-  } else {
-    hotAPI.reload("data-v-217a94bc", Component.options)
-  }
-})()}
-
-module.exports = Component.exports
-
-
-/***/ }),
-/* 62 */
-/***/ (function(module, exports, __webpack_require__) {
-
-module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
-  return _c('div', {
-    staticClass: "jumbotron"
-  }, [_c('h1', [_vm._v("Testemonial Script")]), _vm._v(" "), _c('p', [_c('strong', [_vm._v("\n            Welcome to " + _vm._s(_vm.msg) + "\n        ")])])])
-},staticRenderFns: []}
-module.exports.render._withStripped = true
-if (false) {
-  module.hot.accept()
-  if (module.hot.data) {
-     require("vue-hot-reload-api").rerender("data-v-217a94bc", module.exports)
-  }
-}
 
 /***/ })
 /******/ ]);

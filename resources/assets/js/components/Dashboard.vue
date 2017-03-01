@@ -3,7 +3,7 @@
         <h1>Testemonial Script</h1>
         <p>
             <strong>
-                Welcome to {{ msg }}
+                imad  to {{ msg }}
             </strong>
         </p>
     </div>
@@ -12,6 +12,7 @@
 <script>
 
     export default {
+        name: 'Dashboard',
         data () {
             return {
                 msg: 'Dashboard'

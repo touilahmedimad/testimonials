@@ -23,6 +23,21 @@
     import LoginModal from './components/Parts/Login.vue'
     export default {
         name: 'master',
+        created () {
+            var vm = this
+            if(localStorage.getItem('authtoken')) {
+                axios.get('/api/user')
+                    .then(function (response) {
+                        vm.$store.state.Authenticated = true
+                    })
+                .catch(function (error) {
+                    vm.$store.state.Authenticated = false
+                });
+            }
+            else {
+                this.$store.state.Authenticated = false
+            }
+        },
         methods: {
             showLoginModal: function () {
                 this.$store.state.ShowloginModal = !this.$store.state.ShowloginModal
@@ -30,6 +45,7 @@
             showSignUpModal: function () {
                 this.signupmodal = true
             }
+           
         },
         components: {
             'LoginModal': LoginModal

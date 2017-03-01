@@ -63,9 +63,9 @@
                   .then(function (response) {
                       authtoken.token = response.data.token
                       window.localStorage.setItem('authtoken', JSON.stringify(authtoken))
-                      vm.$store.state.Authenticated = true
                       vm.$store.state.ShowloginModal = false
                       vm.$router.push({name: 'Dashboard'})
+                      vm.$store.state.Authenticated = true
                   })
                   .catch(function (error) {
                       console.log(error)

@@ -10,9 +10,10 @@ import master from './master'
 import { store } from './store/store.js'
 import VueRouter from 'vue-router'
 import Home from './components/Home'
-import Dashboard from './components/Dashboard'
+import DashboardPage from './components/Dashboard'
 import VeeValidate from 'vee-validate'
 import Vue from 'vue';
+import test from './components/Example'
 Vue.use(VeeValidate)
 
 /**
@@ -24,19 +25,39 @@ const routes = [
     {
         path: '/',
         component: Home,
-        name: 'Home'
+        name: 'Home',
+        meta: {requiresAuth: false}
     },
     {
         path: '/dashboard',
-        component: Dashboard,
-        name: 'Dashboard'
+        component: DashboardPage,
+        name: 'Dashboard',
+        meta: {requiresAuth: true}
     },
+    {
+        path: '/test',
+        component: test,
+        name: 'test',
+        meta: {requiresAuth: true}
+    }
 ];
 window.router = new VueRouter({
     routes
 })
+var vm =this
 router.beforeEach((to, from, next) => {
-    next()
+    if(to.meta.requiresAuth) {
+        if(localStorage.getItem('authtoken')) {
+            next()
+        }
+        else {
+            next('/')
+        }
+    }
+    else {
+        next()
+    }
+
 })
 Vue.use(VueRouter);
 const app = new Vue({
