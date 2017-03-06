@@ -4,6 +4,12 @@ Vue.use(Vuex)
 export const store = new Vuex.Store({
     state: {
         ShowloginModal: false,
-        Authenticated: false
+        Authenticated: false,
+        messages: {
+            login : "",
+            signup : "",
+            email : "",
+            password : ""
+        }
     }
 })

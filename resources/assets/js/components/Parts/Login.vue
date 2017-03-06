@@ -3,13 +3,13 @@
   <div class="modal-background"></div>
   <div class="modal-card">
     <header class="modal-card-head">
-      <p class="modal-card-title">Login Modal</p>
+		<p class="modal-card-title">{{ this.$store.state.messages.login }}</p>
       <button class="delete" @click="closemodal"></button>
     </header>
     <section class="modal-card-body">
       <form v-on:submit.prevent="submitform">
         <div class="form-group" :class="{'has-error': errors.has('email') }">
-          <label for="email">Email</label>
+			<label for="email">{{ this.$store.state.messages.email }}</label>
           <input type="text"
                  name="email"
                  v-model="email"
@@ -19,7 +19,7 @@
           <span v-show="errors.has('email')" class="help is-danger">{{ errors.first('email') }}</span>
         </div>
         <div class="form-group" :class="{'has-error': errors.has('password')}">
-          <label for="password">password</label>
+			<label for="password">{{ this.$store.state.messages.password }}</label>
           <input type="password"
                  class="form-control"
                  v-model="password"

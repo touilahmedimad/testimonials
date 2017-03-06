@@ -19870,10 +19870,10 @@ var routes = [{
 window.router = new __WEBPACK_IMPORTED_MODULE_2_vue_router___default.a({
     routes: routes
 });
-var vm = this;
+
 router.beforeEach(function (to, from, next) {
     if (to.meta.requiresAuth) {
-        if (localStorage.getItem('authtoken')) {
+        if (__WEBPACK_IMPORTED_MODULE_1__store_store_js__["a" /* store */].state.Authenticated) {
             next();
         } else {
             next('/');
@@ -20755,6 +20755,57 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = {
@@ -20939,23 +20990,28 @@ Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
 //
 //
 //
+//
+//
+//
 
 
 /* harmony default export */ __webpack_exports__["default"] = {
     name: 'master',
-    created: function created() {
+    beforeCreate: function beforeCreate() {
         var vm = this;
         if (localStorage.getItem('authtoken')) {
-            axios.get('/api/user').then(function (response) {
-                vm.$store.state.Authenticated = true;
-                console.log(response);
-            }).catch(function (error) {
-                vm.$store.state.Authenticated = false;
-                console.log(error);
-            });
+            this.$store.state.Authenticated = true;
         } else {
             this.$store.state.Authenticated = false;
         }
+        axios.get('api/user_language').then(function (response) {
+            vm.$store.state.messages.login = response.data.Login;
+            vm.$store.state.messages.signup = response.data.Sign_up;
+            vm.$store.state.messages.email = response.data.Email;
+            vm.$store.state.messages.password = response.data.Password;
+        }).catch(function (error) {
+            console.log(error);
+        });
     },
 
     methods: {
@@ -21051,7 +21107,13 @@ __WEBPACK_IMPORTED_MODULE_0_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_1_vuex
 var store = new __WEBPACK_IMPORTED_MODULE_1_vuex___default.a.Store({
     state: {
         ShowloginModal: false,
-        Authenticated: false
+        Authenticated: false,
+        messages: {
+            login: "",
+            signup: "",
+            email: "",
+            password: ""
+        }
     }
 });
 
@@ -43776,10 +43838,69 @@ if (false) {
 /***/ (function(module, exports, __webpack_require__) {
 
 module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _vm._m(0)
+},staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
   return _c('div', {
-    staticClass: "jumbotron"
-  }, [_c('h1', [_vm._v("Testemonial Script")]), _vm._v(" "), _c('p', [_c('strong', [_vm._v("\n            imad  to " + _vm._s(_vm.msg) + "\n        ")])])])
-},staticRenderFns: []}
+    staticClass: "container-fluid"
+  }, [_c('div', {
+    staticClass: "row"
+  }, [_c('div', {
+    staticClass: "col-lg-6"
+  }, [_c('div', {
+    staticClass: "box"
+  }, [_c('article', {
+    staticClass: "media"
+  }, [_c('div', {
+    staticClass: "media-left"
+  }, [_c('figure', {
+    staticClass: "image is-64x64"
+  }, [_c('img', {
+    attrs: {
+      "src": "http://bulma.io/images/placeholders/128x128.png",
+      "alt": "Image"
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "media-content"
+  }, [_c('div', {
+    staticClass: "content"
+  }, [_c('p', [_vm._v("\n          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.\n        ")])])])])]), _vm._v(" "), _c('div', {
+    staticClass: "box"
+  }, [_c('article', {
+    staticClass: "media"
+  }, [_c('div', {
+    staticClass: "media-left"
+  }, [_c('figure', {
+    staticClass: "image is-64x64"
+  }, [_c('img', {
+    attrs: {
+      "src": "http://bulma.io/images/placeholders/128x128.png",
+      "alt": "Image"
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "media-content"
+  }, [_c('div', {
+    staticClass: "content"
+  }, [_c('p', [_vm._v("\n          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.\n        ")])])])])]), _vm._v(" "), _c('div', {
+    staticClass: "box"
+  }, [_c('article', {
+    staticClass: "media"
+  }, [_c('div', {
+    staticClass: "media-left"
+  }, [_c('figure', {
+    staticClass: "image is-64x64"
+  }, [_c('img', {
+    attrs: {
+      "src": "http://bulma.io/images/placeholders/128x128.png",
+      "alt": "Image"
+    }
+  })])]), _vm._v(" "), _c('div', {
+    staticClass: "media-content"
+  }, [_c('div', {
+    staticClass: "content"
+  }, [_c('p', [_vm._v("\n          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.\n        ")])])])])])]), _vm._v(" "), _c('div', {
+    staticClass: "col-lg-6"
+  }, [_vm._v("\n                Container Right\n            ")])])])
+}]}
 module.exports.render._withStripped = true
 if (false) {
   module.hot.accept()
@@ -43802,27 +43923,29 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, [_c('div', {
     staticClass: "container"
   }, [_vm._m(0), _vm._v(" "), _c('ul', {
-    staticClass: "pull-right"
-  }, [_c('button', {
     directives: [{
       name: "show",
       rawName: "v-show",
       value: (!this.$store.state.Authenticated),
       expression: "!this.$store.state.Authenticated"
     }],
+    staticClass: "pull-right"
+  }, [_c('button', {
     staticClass: "btn btn-info navbar-btn",
     on: {
       "click": _vm.showLoginModal
     }
-  }, [_vm._v("Login")]), _vm._v(" "), _c('LoginModal'), _vm._v(" "), _c('button', {
+  }, [_vm._v(_vm._s(this.$store.state.messages.login))]), _vm._v(" "), _c('LoginModal'), _vm._v(" "), _c('button', {
+    staticClass: "btn btn-success navbar-btn"
+  }, [_vm._v(" " + _vm._s(this.$store.state.messages.signup))])], 1), _vm._v(" "), _c('div', {
     directives: [{
       name: "show",
       rawName: "v-show",
-      value: (!this.$store.state.Authenticated),
-      expression: "!this.$store.state.Authenticated"
+      value: (this.$store.state.Authenticated),
+      expression: "this.$store.state.Authenticated"
     }],
-    staticClass: "btn btn-success navbar-btn"
-  }, [_vm._v("Sign Up")])], 1)])]), _vm._v(" "), _c('div', {
+    staticClass: "nav navbar-nav navbar-right"
+  }, [_vm._m(1)])])]), _vm._v(" "), _c('div', {
     staticClass: "container"
   }, [_c('router-view')], 1)])
 },staticRenderFns: [function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
@@ -43834,6 +43957,12 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
   }, [_c('i', {
     staticClass: "glyphicon glyphicon-pencil"
   }), _vm._v("\n                Testimonials\n            ")])
+},function (){var _vm=this;var _h=_vm.$createElement;var _c=_vm._self._c||_h;
+  return _c('li', [_c('a', {
+    attrs: {
+      "href": "#/dashboard"
+    }
+  }, [_vm._v("Dashboard")])])
 }]}
 module.exports.render._withStripped = true
 if (false) {
@@ -43890,7 +44019,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     staticClass: "modal-card-head"
   }, [_c('p', {
     staticClass: "modal-card-title"
-  }, [_vm._v("Login Modal")]), _vm._v(" "), _c('button', {
+  }, [_vm._v(_vm._s(this.$store.state.messages.login))]), _vm._v(" "), _c('button', {
     staticClass: "delete",
     on: {
       "click": _vm.closemodal
@@ -43913,7 +44042,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     attrs: {
       "for": "email"
     }
-  }, [_vm._v("Email")]), _vm._v(" "), _c('input', {
+  }, [_vm._v(_vm._s(this.$store.state.messages.email))]), _vm._v(" "), _c('input', {
     directives: [{
       name: "model",
       rawName: "v-model",
@@ -43958,7 +44087,7 @@ module.exports={render:function (){var _vm=this;var _h=_vm.$createElement;var _c
     attrs: {
       "for": "password"
     }
-  }, [_vm._v("password")]), _vm._v(" "), _c('input', {
+  }, [_vm._v(_vm._s(this.$store.state.messages.password))]), _vm._v(" "), _c('input', {
     directives: [{
       name: "model",
       rawName: "v-model",

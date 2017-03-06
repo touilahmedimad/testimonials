@@ -22,3 +22,6 @@ Route::middleware('auth.jwt')->get('/user', function (Request $request) {
 Route::post('/signin', [
     'uses' => 'UserController@SignIn'
 ]);
+Route::get('/user_language', function (){
+    return trans('user');
+});

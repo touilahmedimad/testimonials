@@ -44,10 +44,10 @@ const routes = [
 window.router = new VueRouter({
     routes
 })
-var vm =this
+
 router.beforeEach((to, from, next) => {
     if(to.meta.requiresAuth) {
-        if(localStorage.getItem('authtoken')) {
+        if(store.state.Authenticated) {
             next()
         }
         else {

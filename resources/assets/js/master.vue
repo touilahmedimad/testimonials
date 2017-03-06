@@ -6,11 +6,14 @@
                     <i class="glyphicon glyphicon-pencil"></i>
                     Testimonials
                 </a>
-                <ul class="pull-right">
-                    <button v-show="!this.$store.state.Authenticated" class="btn btn-info navbar-btn" @click="showLoginModal">Login</button>
-                    <LoginModal></LoginModal>
-                    <button  v-show="!this.$store.state.Authenticated" class="btn btn-success navbar-btn" >Sign Up</button>
+                <ul  v-show="!this.$store.state.Authenticated" class="pull-right">
+                    <button class="btn btn-info navbar-btn" @click="showLoginModal">{{ this.$store.state.messages.login }}</button>
+                         <LoginModal></LoginModal>
+                         <button class="btn btn-success navbar-btn" > {{ this.$store.state.messages.signup }}</button>
                 </ul>
+                    <div class="nav navbar-nav navbar-right" v-show="this.$store.state.Authenticated">
+                        <li><a href="#/dashboard">Dashboard</a></li>
+                    </div>
             </div>
         </nav>
         <div class="container">
@@ -23,20 +26,24 @@
     import LoginModal from './components/Parts/Login.vue'
     export default {
         name: 'master',
-        created () {
+        beforeCreate () {
             var vm = this
             if(localStorage.getItem('authtoken')) {
-                axios.get('/api/user')
-                    .then(function (response) {
-                        vm.$store.state.Authenticated = true
-                    })
-                .catch(function (error) {
-                    vm.$store.state.Authenticated = false
-                });
+               this.$store.state.Authenticated = true
             }
             else {
                 this.$store.state.Authenticated = false
             }
+            axios.get('api/user_language')
+                .then (function (response){
+                    vm.$store.state.messages.login = response.data.Login
+                    vm.$store.state.messages.signup = response.data.Sign_up
+                    vm.$store.state.messages.email = response.data.Email
+                    vm.$store.state.messages.password = response.data.Password
+                })
+            .catch (function (error) {
+                console.log(error)
+            });
         },
         methods: {
             showLoginModal: function () {
