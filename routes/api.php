@@ -2,6 +2,7 @@
 
 use Illuminate\Http\Request;
 
+
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -25,3 +26,5 @@ Route::post('/signin', [
 Route::get('/user_language', function (){
     return trans('user');
 });
+
+Route::get('/testimonials','TestimonialController@get');

@@ -14,7 +14,9 @@ import DashboardPage from './components/Dashboard'
 import VeeValidate from 'vee-validate'
 import Vue from 'vue';
 import test from './components/Example'
+import VueMoment from 'vue-moment'
 Vue.use(VeeValidate)
+Vue.use(VueMoment)
 
 /**
  * Next, we will create a fresh Vue application instance and attach it to

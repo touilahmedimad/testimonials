@@ -66,6 +66,7 @@
                       vm.$store.state.ShowloginModal = false
                       vm.$router.push({name: 'Dashboard'})
                       vm.$store.state.Authenticated = true
+					  axios.defaults.headers.common['Authorization'] = "Bearer"+  authtoken.token
                   })
                   .catch(function (error) {
                       console.log(error)

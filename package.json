@@ -17,6 +17,7 @@
     "vuex": "^2.1.2"
   },
   "dependencies": {
-    "vee-validate": "^2.0.0-beta.22"
+    "vee-validate": "^2.0.0-beta.22",
+    "vue-moment": "^2.0.2"
   }
 }

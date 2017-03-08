@@ -6,6 +6,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <link rel="stylesheet" href="https://bootswatch.com/flatly/bootstrap.css">
         <link rel="stylesheet" href="{{ asset('css/bulma.css')}}">
+        <link rel="stylesheet" href="https:/maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
 
         <title>Laravel</title>
         <meta name="csrf-token" content="{{ csrf_token() }}">

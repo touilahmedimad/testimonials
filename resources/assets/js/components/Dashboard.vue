@@ -1,60 +1,62 @@
 <template>
     <div class="container-fluid">
-        <div class="row">
+   <div class="row">
             <div class="col-lg-6">
-<div class="box">
-  <article class="media">
+<div v-for="item in items" class="box">
+   <article class="media">
     <div class="media-left">
       <figure class="image is-64x64">
-        <img src="http://bulma.io/images/placeholders/128x128.png" alt="Image">
+        <img src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-group-512.png" alt="Image">
       </figure>
     </div>
     <div class="media-content">
       <div class="content">
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.
+        <strong>Anonyme </srong><small>{{item.created_at | moment("from", "now")}}</small>
+            <br>
+            {{ item.message }}
         </p>
       </div>
-   </div>
-  </article>
-</div>
-<div class="box">
-  <article class="media">
-    <div class="media-left">
-      <figure class="image is-64x64">
-        <img src="http://bulma.io/images/placeholders/128x128.png" alt="Image">
-      </figure>
+      <nav class="level pull-right">
+        <div class="level-left">
+          <a class="level-item">
+            <button type="button" class="btn btn-default btn-sm pull-right" aria-label="Left Align" @click="removeitem(item.id)">
+             <span class="glyphicon glyphicon-trash" aria-hidden="true"></span>
+            </button>
+          </a>
+        </div>
+      </nav>
     </div>
-    <div class="media-content">
-      <div class="content">
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.
-        </p>
-      </div>
-   </div>
   </article>
 </div>
-<div class="box">
-  <article class="media">
-    <div class="media-left">
-      <figure class="image is-64x64">
-        <img src="http://bulma.io/images/placeholders/128x128.png" alt="Image">
-      </figure>
-    </div>
-    <div class="media-content">
-      <div class="content">
-        <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean efficitur sit amet massa fringilla egestas. Nullam condimentum luctus turpis.
-        </p>
-      </div>
-   </div>
-  </article>
-</div>
- 
- 
      </div>
             <div class="col-lg-6">
-                Container Right
+                <div class="card">
+  <div class="card-image">
+    <figure class="image is-4by3">
+      <img src="https://www.clipartsgram.com/image/962257514-nature-landscape-fence-fencing-fence-snow-sun-road-tree-leaves-leaves-bokeh-blur-tree-macro-nature-background-wallpaper-widescreen-full-screen-widescreen-hd-wallpapers-background-wallpaper-widescreen.jpg" alt="Image">
+    </figure>
+  </div>
+  <div class="card-content">
+    <div class="media">
+      <div class="media-left">
+        <figure class="image" style="height: 40px; width: 40px;">
+          <img src="http://bulma.io/images/placeholders/96x96.png" alt="Image">
+        </figure>
+      </div>
+      <div class="media-content">
+          <p class="title is-4">{{ user.name }}</p>
+          <p class="subtitle is-6">{{user.username}}</p>
+      </div>
+    </div>
+
+    <div class="content">
+        {{ user.bio }}
+    </div>
+</div>
+<footer class="card-footer">
+    <p class="card-footer-item"> Messages {{ total }}</a>
+</footer>
             </div>
         </div>
     </div>
@@ -66,8 +68,33 @@
         name: 'Dashboard',
         data () {
             return {
-                msg: 'Dashboard'
+                msg: 'Dashboard',
+                items: {},
+                user: {},
+                total: {}
             }
         },
+        created () {
+            var vm = this
+            axios.get('/api/testimonials')
+                .then ( function (response){
+                    vm.items = response.data.testimonials.data
+                    vm.user = response.data.user
+                    vm.total = response.data.testimonials.total
+                })
+            .catch ( function (error){
+                console.log(error)
+            } )
+        },
+        methods: {
+            removeitem: function (id){
+                console.log(id)
+            }
+        },
+        filters: {
+            datenow: function (date){
+               return  moment(date).fromNow()
+            }
+        }
     }
 </script>

@@ -12,7 +12,7 @@
                          <button class="btn btn-success navbar-btn" > {{ this.$store.state.messages.signup }}</button>
                 </ul>
                     <div class="nav navbar-nav navbar-right" v-show="this.$store.state.Authenticated">
-                        <li><a href="#/dashboard">Dashboard</a></li>
+                        <li><router-link to="dashboard">Dashboard </router-link></li>
                     </div>
             </div>
         </nav>
