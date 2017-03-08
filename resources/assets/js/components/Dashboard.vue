@@ -29,6 +29,8 @@
     </div>
   </article>
 </div>
+<pagination :data="pagination" v-on:pagination-change-page="getResults"></pagination>
+
      </div>
             <div class="col-lg-6">
                 <div class="card">
@@ -63,32 +65,44 @@
 </template>
 
 <script>
-
+    import pagination from 'laravel-vue-pagination'
     export default {
         name: 'Dashboard',
+        components: {
+            'pagination': pagination
+        },
         data () {
             return {
                 msg: 'Dashboard',
                 items: {},
                 user: {},
-                total: {}
+                total: {},
+                pagination: {}
             }
         },
         created () {
-            var vm = this
-            axios.get('/api/testimonials')
+            this.getResults()
+                    },
+        methods: {
+            removeitem: function (id){
+                console.log(id)
+            },
+            getResults: function (page){
+                var vm = this
+                    if (typeof page === 'undefined') {
+                     page = 1;
+                  }
+                axios.get('/api/testimonials?page='+ page)
                 .then ( function (response){
                     vm.items = response.data.testimonials.data
                     vm.user = response.data.user
                     vm.total = response.data.testimonials.total
+                    vm.pagination = response.data.testimonials
                 })
             .catch ( function (error){
                 console.log(error)
             } )
-        },
-        methods: {
-            removeitem: function (id){
-                console.log(id)
+  
             }
         },
         filters: {
