@@ -11,13 +11,16 @@ import { store } from './store/store.js'
 import VueRouter from 'vue-router'
 import Home from './components/Home'
 import DashboardPage from './components/Dashboard'
+import Profile from './components/Profile'
 import VeeValidate from 'vee-validate'
 import Vue from 'vue';
 import test from './components/Example'
 import VueMoment from 'vue-moment'
+import Auth from './auth'
+window.bus = new Vue({})
 Vue.use(VeeValidate)
 Vue.use(VueMoment)
-
+Auth.checkAuth()
 /**
  * Next, we will create a fresh Vue application instance and attach it to
  * the page. Then, you may begin adding components to this application
@@ -41,6 +44,12 @@ const routes = [
         component: test,
         name: 'test',
         meta: {requiresAuth: true}
+    },
+    {
+        path: '/profile',
+        component: Profile,
+        name: 'profile',
+        meta: {requiresAuth: true}
     }
 ];
 window.router = new VueRouter({
@@ -49,7 +58,7 @@ window.router = new VueRouter({
 
 router.beforeEach((to, from, next) => {
     if(to.meta.requiresAuth) {
-        if(store.state.Authenticated) {
+        if(window.authenticated) {
             next()
         }
         else {

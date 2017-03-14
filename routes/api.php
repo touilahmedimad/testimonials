@@ -28,3 +28,4 @@ Route::get('/user_language', function (){
 });
 
 Route::get('/testimonials','TestimonialController@get');
+Route::post('updateprofile', 'ProfileController@postprofile');

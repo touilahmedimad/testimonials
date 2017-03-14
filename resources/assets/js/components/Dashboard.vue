@@ -6,7 +6,7 @@
    <article class="media">
     <div class="media-left">
       <figure class="image is-64x64">
-        <img src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/user-group-512.png" alt="Image">
+        <img src="https://images.vexels.com/media/users/3/135248/isolated/preview/c242693ffb353188d2819ad2c6bcaaab-user-sign-with-red-background-by-vexels.png" alt="Image">
       </figure>
     </div>
     <div class="media-content">
@@ -82,7 +82,7 @@
         },
         created () {
             this.getResults()
-                    },
+        },
         methods: {
             removeitem: function (id){
                 console.log(id)

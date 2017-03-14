@@ -36,6 +36,7 @@
 </div>
 </template>
 <script>
+	import Auth from '../../auth'
   export default {
       name: 'LoginModal',
     data () {
@@ -55,23 +56,12 @@
                   // handle error
                   return;
               }
-              const authtoken= {}
-              axios.post('/api/signin', {
-                  email: this.email,
-                  password: this.password
-              })
-                  .then(function (response) {
-                      authtoken.token = response.data.token
-                      window.localStorage.setItem('authtoken', JSON.stringify(authtoken))
-                      vm.$store.state.ShowloginModal = false
-                      vm.$router.push({name: 'Dashboard'})
-                      vm.$store.state.Authenticated = true
-					  axios.defaults.headers.common['Authorization'] = "Bearer"+  authtoken.token
-                  })
-                  .catch(function (error) {
-                      console.log(error)
-                  });
-          })
+			  var credentials = {
+				  email: this.email,
+				  password: this.password
+			  }
+			  Auth.login(this, credentials, 'Dashboard')
+         })
 
       }
     }
